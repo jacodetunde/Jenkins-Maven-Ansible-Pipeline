@@ -7,7 +7,7 @@ pipeline {
   agent any
   environment {
     WORKSPACE = "${env.WORKSPACE}"
-    NEXUS_CREDENTIAL_ID = 'Nexus-Credential'
+    NEXUS_CREDENTIAL_ID = 'nexus-credential'
     //NEXUS_USER = "$NEXUS_CREDS_USR"
     //NEXUS_PASSWORD = "$Nexus-Token"
     //NEXUS_URL = "172.31.18.62:8081"
@@ -54,11 +54,11 @@ pipeline {
     stage('SonarQube Inspection') {
         steps {
             withSonarQubeEnv('SonarQube') { 
-                withCredentials([string(credentialsId: 'SonarQube-Token', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                 sh """
                 mvn sonar:sonar \
                 -Dsonar.projectKey=cicd-pipeline-project \
-                -Dsonar.host.url=http://172.31.23.58:9000 \
+                -Dsonar.host.url=http://172.31.52.94:9000 \
                 -Dsonar.login=$SONAR_TOKEN
                 """
                 }
@@ -96,7 +96,7 @@ pipeline {
             HOSTS = 'dev'
         }
         steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
+            withCredentials([usernamePassword(credentialsId: 'ansible-credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
                 sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
             }
         }
@@ -106,7 +106,7 @@ pipeline {
             HOSTS = 'stage'
         }
         steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
+            withCredentials([usernamePassword(credentialsId: 'ansible-credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
                 sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
             }
         }
@@ -121,7 +121,7 @@ pipeline {
             HOSTS = 'prod'
         }
         steps {
-            withCredentials([usernamePassword(credentialsId: 'Ansible-Credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
+            withCredentials([usernamePassword(credentialsId: 'ansible-credential', passwordVariable: 'PASSWORD', usernameVariable: 'USER_NAME')]) {
                 sh "ansible-playbook -i ${WORKSPACE}/ansible-config/aws_ec2.yaml ${WORKSPACE}/deploy.yaml --extra-vars \"ansible_user=$USER_NAME ansible_password=$PASSWORD hosts=tag_Environment_$HOSTS workspace_path=$WORKSPACE\""
             }
          }
